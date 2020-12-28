@@ -1,0 +1,3 @@
+[submodule "live-transport-network-monitor/solutions"]
+	path = live-transport-network-monitor/solutions
+	url = https://github.com/learncppthroughprojects/live-transport-network-monitor.git
