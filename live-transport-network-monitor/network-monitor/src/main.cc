@@ -1,66 +1,101 @@
+// Boost-specific libraries
 #include <boost/asio.hpp>
+#include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
 
+// Regular libraries
 #include <iomanip>
 #include <iostream>
 #include <thread>
 
-using tcp = boost::asio::ip::tcp;
+// Type alias for the TCP socket
+using tcp=boost::asio::ip::tcp;
+using tcp_stream=boost::beast::tcp_stream;
 
-void Log(boost::system::error_code ec)
+// Logs the status of a Boost I/O context usage
+void log(const std::string& where,boost::system::error_code ec)
 {
-  std::cerr << "[" << std::setw(14) << std::this_thread::get_id() << "] "
+  std::cerr << "[" << std::left << std::setw(20) << where << "] "
             << (ec ? "Error: " : "OK")
             << (ec ? ec.message() : "")
             << std::endl;
 } // End of Log
 
-void OnConnect(boost::system::error_code ec)
-{
-  Log(ec);
-} // End of OnConnect
-
 int main()
 {
-  std::cerr << "[" << std::setw(14) << std::this_thread::get_id() << "] main"
-            << std::endl;
+  // Connection targets
+  const std::string url {"echo.websocket.org"};
+  const std::string port{"80"};
+  const std::string message{"Hello-ooo! Can anybody hear me?..."};
 
   // Always start with an I/O context object.
-  boost::asio::io_context ioc {};
+  boost::asio::io_context ioc{};
 
-  // Create an I/O object. Every Boost.Asio I/O object API needs an io_context
-  // as the first parameter.
-  tcp::socket socket {boost::asio::make_strand(ioc)};
+  // An error code to store the status of the program
+  boost::system::error_code err_code{};
 
-  size_t nThreads {4};
-
-  // Under the hood, socket.connect uses I/O context to talk to the socket
-  // and get a response back. The response is saved in ec.
-  boost::system::error_code ec {};
-  tcp::resolver resolver {ioc};
-  auto endpoint {resolver.resolve("google.com", "80", ec)};
-  if (ec)
+  // Attempt to resolve the address
+  tcp::resolver resolver{ioc};
+  auto endpoint{resolver.resolve(url,port,err_code)};
+  if (err_code)
   {
-    Log(ec);
+    log("resolver.resolve",err_code);
     return -1;
   }
-  for (size_t idx {0}; idx < nThreads; ++idx)
+
+  // Create a TCP connection to the resolved host.
+  tcp::socket socket{ioc};
+  socket.connect(*endpoint,err_code);
+  if (err_code)
   {
-    socket.async_connect(*endpoint, OnConnect);
+    log("socket.connect",err_code);
+    return -2;
   }
 
-  // We must call io_context::run for asynchronous callbacks to run.
-  std::vector<std::thread> threads {};
-  threads.reserve(nThreads);
-  for (size_t idx {0}; idx < nThreads; ++idx)
+  // Tie the socket object to the WebSocket stream and attempt an handshake.
+  boost::beast::websocket::stream<tcp_stream> web_socket(std::move(socket));
+  web_socket.handshake(url,"/",err_code);
+  if (err_code)
   {
-    threads.emplace_back([&ioc]()
-    {
-      ioc.run();
-    });
+    log("web_socket.handshake",err_code);
+    return -3;
   }
-  for (size_t idx {0}; idx < nThreads; ++idx)
+
+  // Tell the WebSocket object to exchange messages in text format.
+  web_socket.text(true);
+
+  // Send a message to the connected WebSocket server.
+  boost::asio::const_buffer write_buffer(message.c_str(),message.size());
+  web_socket.write(write_buffer,err_code);
+  if (err_code)
   {
-    threads[idx].join();
+    log("web_socket.write",err_code);
+    return -4;
   }
+
+  // Read the echoed message back
+  boost::beast::flat_buffer read_buffer{};
+  web_socket.read(read_buffer,err_code);
+  if (err_code)
+  {
+    log("web_socket.read",err_code);
+    return -5;
+  }
+
+  // Log the message that was received
+  std::cerr << "Message sent: "
+            << boost::beast::make_printable(write_buffer)
+            << "\nMessage received: "
+            << boost::beast::make_printable(read_buffer.data())
+            << std::endl;
+
+  // We're done
+  log("Returning...",err_code);
 } // End of main
+
+
+
+
+
+
+

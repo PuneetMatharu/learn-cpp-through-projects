@@ -13,4 +13,9 @@ set(SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc")
 
 add_executable(network-monitor ${SOURCES})
 target_compile_features(network-monitor PRIVATE cxx_std_11)
+
+# Colourise the ninja output
+target_compile_options(network-monitor PRIVATE -fcolor-diagnostics)
+
+# The libraries for the target to link to
 target_link_libraries(network-monitor PRIVATE Boost::Boost)
