@@ -12,7 +12,7 @@ find_package(Boost 1.74 REQUIRED COMPONENTS system)
 set(SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc")
 
 add_executable(network-monitor ${SOURCES})
-target_compile_features(network-monitor PRIVATE cxx_std_11)
+target_compile_features(network-monitor PRIVATE cxx_std_14)
 
 # Colourise the ninja output
 target_compile_options(network-monitor PRIVATE -fcolor-diagnostics)
