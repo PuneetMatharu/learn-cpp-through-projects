@@ -1,5 +1,4 @@
-#include "websocket_client.h"
-
+// Boost-specific libraries
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
@@ -10,6 +9,9 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+
+// Headers we've defined
+#include "network-monitor/websocket_client.h"
 
 namespace NetworkMonitor
 {

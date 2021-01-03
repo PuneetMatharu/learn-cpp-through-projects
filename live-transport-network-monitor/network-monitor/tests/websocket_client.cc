@@ -6,7 +6,7 @@
 #include <string>
 
 // Headers we've defined
-#include "websocket_client.h"
+#include "network-monitor/websocket_client.h"
 
 int main()
 {
