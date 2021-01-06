@@ -4,10 +4,11 @@ project(network-monitor)
 
 # Dependencies: If dependencies are managed with conan, we set the CMake module
 # path (where CMake looks for dependencies) to the current build folder.
-if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conaninfo.txt)
+if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conaninfo.txt)
   set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
-endif()
+endif ()
 find_package(Boost 1.74 REQUIRED COMPONENTS system unit_test_framework)
+find_package(OpenSSL REQUIRED)
 
 # Called before any other target is defined.
 enable_testing()
@@ -17,7 +18,7 @@ set(LIBRARY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/websocket_client.cc")
 add_library(network-monitor STATIC ${LIBRARY_SOURCES})
 target_compile_features(network-monitor PUBLIC cxx_std_14)
 target_include_directories(network-monitor PUBLIC include)
-target_link_libraries(network-monitor PUBLIC Boost::Boost)
+target_link_libraries(network-monitor PUBLIC Boost::Boost OpenSSL::OpenSSL)
 
 # Tests
 set(TESTS_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/main.cc"

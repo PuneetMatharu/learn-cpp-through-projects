@@ -3,6 +3,9 @@
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
 
+// OpenSSL libraries to use SSL/TLS protocols
+#include <openssl/ssl.h>
+
 // Regular libraries
 #include <chrono>
 #include <functional>
