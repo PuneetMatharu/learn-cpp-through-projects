@@ -8,8 +8,15 @@
 // Regular libraries
 #include <iostream>
 #include <string>
+#include <filesystem>
 
 BOOST_AUTO_TEST_SUITE(network_monitor);
+
+BOOST_AUTO_TEST_CASE(cacert_pem)
+{
+  // Make sure we were able to find the secure certificates
+  BOOST_CHECK(std::filesystem::exists(TESTS_CACERT_PEM));
+}
 
 BOOST_AUTO_TEST_CASE(class_WebSocketClient)
 {
