@@ -12,6 +12,7 @@ if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conaninfo.txt)
 endif ()
 find_package(Boost 1.74 REQUIRED COMPONENTS system unit_test_framework)
 find_package(CURL REQUIRED)
+find_package(nlohmann_json 3.9.1 REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 # =============================================================================
@@ -41,7 +42,7 @@ target_include_directories(network-monitor PUBLIC include)
 # The additional libraries this library requires
 target_link_libraries(
   network-monitor
-  PUBLIC Boost::Boost OpenSSL::OpenSSL
+  PUBLIC Boost::Boost nlohmann_json::nlohmann_json OpenSSL::OpenSSL
   PRIVATE CURL::CURL
 )
 
@@ -65,13 +66,19 @@ target_compile_options(network-monitor-tests PUBLIC -fcolor-diagnostics)
 # Add the location of the downloaded security certificate (contains the CAs)
 target_compile_definitions(
   network-monitor-tests
-  PRIVATE TESTS_CACERT_PEM="${CMAKE_CURRENT_SOURCE_DIR}/tests/cacert.pem"
+  PRIVATE
+    TESTS_CACERT_PEM="${CMAKE_CURRENT_SOURCE_DIR}/tests/cacert.pem"
+    TESTS_NETWORK_LAYOUT_JSON="${CMAKE_CURRENT_SOURCE_DIR}/tests/network-layout.json"
 )
 
 # The libraries the executable needs to link with; this does not include the
 # dependencies added transitively through the network-monitor library
 target_link_libraries(
-  network-monitor-tests PRIVATE network-monitor Boost::Boost OpenSSL::OpenSSL
+  network-monitor-tests
+  PRIVATE network-monitor
+          Boost::Boost
+          OpenSSL::OpenSSL
+          nlohmann_json::nlohmann_json
 )
 
 # The name of the test this will be built into

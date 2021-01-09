@@ -12,11 +12,15 @@
 
 BOOST_AUTO_TEST_SUITE(network_monitor);
 
+//-------------------------------------------------------------------------
+
 BOOST_AUTO_TEST_CASE(cacert_pem)
 {
   // Make sure we were able to find the secure certificates
   BOOST_CHECK(std::filesystem::exists(TESTS_CACERT_PEM));
 }
+
+//-------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_CASE(class_WebSocketClient)
 {
@@ -84,6 +88,8 @@ BOOST_AUTO_TEST_CASE(class_WebSocketClient)
   BOOST_CHECK(disconnected);
   BOOST_CHECK_EQUAL(message,response);
 } // BOOST_AUTO_TEST_CASE(class_WebSocketClient)
+
+//-------------------------------------------------------------------------
 
 bool check_response(const std::string& response)
 {
@@ -173,6 +179,8 @@ BOOST_AUTO_TEST_CASE(test_stomp_protocol)
   BOOST_CHECK(disconnected);
   BOOST_CHECK(check_response(response));
 } // BOOST_AUTO_TEST_CASE(class_WebSocketClient)
+
+//-------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_SUITE_END();
 

@@ -1,6 +1,9 @@
 #ifndef FILE_DOWNLOADER_H
 #define FILE_DOWNLOADER_H
 
+// JSON library
+#include <nlohmann/json.hpp>
+
 // Regular libraries
 #include <filesystem>
 #include <string>
@@ -19,6 +22,14 @@ namespace NetworkMonitor
   bool download_file(const std::string& file_url,
                      const std::filesystem::path& destination,
                      const std::filesystem::path& ca_cert_file= {});
-}
+
+  //===========================================================================
+  /*! \brief Parse a local file into a JSON object.
+
+      \param source The path to the JSON file to load and parse.
+  */
+  //===========================================================================
+  nlohmann::json parse_json_file(const std::filesystem::path& source);
+} // namespace NetworkMonitor
 
 #endif

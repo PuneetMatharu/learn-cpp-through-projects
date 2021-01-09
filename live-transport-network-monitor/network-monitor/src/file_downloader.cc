@@ -1,9 +1,13 @@
 // The libcurl library
 #include <curl/curl.h>
 
+// JSON parsing library
+#include <nlohmann/json.hpp>
+
 // Regular libraries
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 #include <string>
 
 // The matching header
@@ -60,4 +64,40 @@ namespace NetworkMonitor
     // Return the outcome of the curl request
     return result==CURLE_OK;
   } // End of download_file
+
+
+  //===========================================================================
+  /*! \brief Parse a local file into a JSON object.
+
+      \param source The path to the JSON file to load and parse.
+  */
+  //===========================================================================
+  nlohmann::json parse_json_file(const std::filesystem::path& source)
+  {
+    nlohmann::json json_obj{};
+
+    // Is there a file to load in?
+    if (!std::filesystem::exists(source))
+    {
+      return json_obj;
+    }
+
+    // Try to read in the .json file
+    try
+    {
+      // Read the input JSON file
+      std::ifstream file{source};
+      file >> json_obj;
+    }
+    catch (...)
+    {
+      // Will return an empty object.
+    }
+
+    // Return the generated JSON object
+    return json_obj;
+  } // End of parse_json_file
 } // namespace NetworkMonitor
+
+
+

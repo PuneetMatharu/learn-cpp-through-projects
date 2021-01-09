@@ -2,6 +2,9 @@
 #include <boost/asio.hpp>
 #include <boost/test/unit_test.hpp>
 
+// JSON parsing library
+#include <nlohmann/json.hpp>
+
 // Regular libraries
 #include <filesystem>
 #include <fstream>
@@ -11,6 +14,8 @@
 #include <network-monitor/file_downloader.h>
 
 BOOST_AUTO_TEST_SUITE(network_monitor);
+
+//-------------------------------------------------------------------------
 
 // Our implementation and tests have some limitations:
 //  * Missing test #1: Failed download.
@@ -56,6 +61,44 @@ BOOST_AUTO_TEST_CASE(file_downloader)
 
   // Clean up.
   std::filesystem::remove(destination);
-}
+} // BOOST_AUTO_TEST_CASE(file_downloader)
+
+//-------------------------------------------------------------------------
+
+BOOST_AUTO_TEST_CASE(network_layout_json)
+{
+  // Make sure we were able to find the network layout .json file
+  BOOST_CHECK(std::filesystem::exists(TESTS_NETWORK_LAYOUT_JSON));
+} // BOOST_AUTO_TEST_CASE(network_layout_json)
+
+//-------------------------------------------------------------------------
+
+// Our implementation and tests have some limitations:
+//  * Missing test #1: File not found.
+//  * Missing test #2: Invalid JSON format.
+//  * Missing test #3: Empty file.
+
+BOOST_AUTO_TEST_CASE(json_parser)
+{
+  // Create a JSON object to store the contents of the .json file
+  nlohmann::json json_obj
+  {
+    NetworkMonitor::parse_json_file(TESTS_NETWORK_LAYOUT_JSON)
+  };
+
+  // Check for certain keys and make sure the arrays have non-zero size
+  BOOST_CHECK(json_obj.contains("lines"));
+  BOOST_CHECK(json_obj.contains("stations"));
+  BOOST_CHECK(json_obj.contains("travel_times"));
+  BOOST_CHECK(json_obj["lines"].size()>0);
+  BOOST_CHECK(json_obj["stations"].size()>0);
+  BOOST_CHECK(json_obj["travel_times"].size()>0);
+} // BOOST_AUTO_TEST_CASE(json_parser)
+
+//-------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_SUITE_END();
+
+
+
+
