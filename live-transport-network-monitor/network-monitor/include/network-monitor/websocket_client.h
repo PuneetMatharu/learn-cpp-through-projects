@@ -25,14 +25,17 @@ namespace NetworkMonitor
 
         \note This constructor does not initiate a connection.
 
-        \param url  The URL of the server.
-        \param port The port on the server.
-        \param ioc  The io_context object. The user takes care of calling
-                    ioc.run().
-        \param ctx  The TLS context to setup a TLS socket stream.
+        \param url      The URL of the server.
+        \param endpoint The endpoint on the server to connect to.
+                        Example: echo.websocket.org/<endpoint>
+        \param port     The port on the server.
+        \param ioc      The io_context object. The user takes care of calling
+                        ioc.run().
+        \param ctx      The TLS context to setup a TLS socket stream.
     */
     //=========================================================================
     WebSocketClient(const std::string& url,
+                    const std::string& endpoint,
                     const std::string& port,
                     boost::asio::io_context& ioc,
                     boost::asio::ssl::context& ctx);
@@ -84,6 +87,7 @@ namespace NetworkMonitor
 
   private:
     const std::string& Url;
+    const std::string& Endpoint;
     const std::string& Port;
 
     // Leave uninitialized because they do not support a default constructor.

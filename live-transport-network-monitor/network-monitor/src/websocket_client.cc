@@ -36,18 +36,22 @@ namespace NetworkMonitor
 
       \note This constructor does not initiate a connection.
 
-      \param url  The URL of the server.
-      \param port The port on the server.
-      \param ioc  The io_context object. The user takes care of calling
-                  ioc.run().
-      \param ctx  The TLS context to setup a TLS socket stream.
+      \param url      The URL of the server.
+      \param endpoint The endpoint on the server to connect to.
+                      Example: echo.websocket.org/<endpoint>
+      \param port     The port on the server.
+      \param ioc      The io_context object. The user takes care of calling
+                      ioc.run().
+      \param ctx      The TLS context to setup a TLS socket stream.
   */
   //=========================================================================
   WebSocketClient::WebSocketClient(const std::string& url,
+                                   const std::string& endpoint,
                                    const std::string& port,
                                    boost::asio::io_context& ioc,
                                    boost::asio::ssl::context& ctx) :
     Url(url),
+    Endpoint(endpoint),
     Port(port),
     Resolver(boost::asio::make_strand(ioc)),
     Web_socket(boost::asio::make_strand(ioc),ctx)
@@ -157,7 +161,7 @@ namespace NetworkMonitor
     // the timeout to a sensible default after we're connected.
     // Note: The TCP layer is the lowest layer (WebSocket -> TLS -> TCP).
     boost::beast::get_lowest_layer(Web_socket
-      ).expires_after(std::chrono::seconds(5));
+                                  ).expires_after(std::chrono::seconds(5));
 
     // Connect to the TCP socket.
     // Instead of constructing the socket and the ws objects separately, the
@@ -211,12 +215,12 @@ namespace NetworkMonitor
   {
     // Attempt a WebSocket handshake.
     Web_socket.async_handshake(
-      Url,"/",
+      Url,Endpoint,
       [this](auto err_code)
     {
       on_handshake(err_code);
     });
-  } // End of on_handshake
+  } // End of on_tls_handshake
 
 
   //=========================================================================
