@@ -11,6 +11,7 @@ if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conaninfo.txt)
   set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 endif ()
 find_package(Boost 1.74 REQUIRED COMPONENTS system unit_test_framework)
+find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 # =============================================================================
@@ -22,26 +23,36 @@ enable_testing()
 # Build the user-defined static library
 # =============================================================================
 # Our library source files
-set(LIBRARY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/websocket_client.cc")
+set(LIBRARY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/file_downloader.cc"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src/websocket_client.cc"
+)
 
 # Make sure we build it as static and call it network-monitor
 add_library(network-monitor STATIC ${LIBRARY_SOURCES})
 
-# The compilation flags we need for this library
-target_compile_features(network-monitor PUBLIC cxx_std_14)
+# The compilation flags we need for this library.
+# NOTE: C++14 is required for auto arguments (?) and C++17 is required for
+# the filesystem library.
+target_compile_features(network-monitor PUBLIC cxx_std_17)
 
 # The location of the corresponding header files
 target_include_directories(network-monitor PUBLIC include)
 
-# The additional libraries this requires
-target_link_libraries(network-monitor PUBLIC Boost::Boost OpenSSL::OpenSSL)
+# The additional libraries this library requires
+target_link_libraries(
+  network-monitor
+  PUBLIC Boost::Boost OpenSSL::OpenSSL
+  PRIVATE CURL::CURL
+)
 
 # =============================================================================
 # Tests
 # =============================================================================
 # Source files
-set(TESTS_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/main.cc"
-                  "${CMAKE_CURRENT_SOURCE_DIR}/tests/websocket_client.cc"
+set(TESTS_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/file_downloader.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/main.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/websocket_client.cc"
 )
 
 # The executable to build

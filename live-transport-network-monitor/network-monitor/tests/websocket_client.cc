@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(class_WebSocketClient)
   bool message_sent{false};
   bool message_received{false};
   bool disconnected{false};
-  std::string echoed_message{};
+  std::string response{};
 
   // Our own callbacks
   auto on_send{[&message_sent](auto err_code)
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(test_stomp_protocol)
   bool message_sent{false};
   bool message_received{false};
   bool disconnected{false};
-  std::string echoed_message{};
+  std::string response{};
 
   // Our own callbacks
   auto on_send{[&message_sent](auto err_code)
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(test_stomp_protocol)
   auto on_receive{[&client,
                    &on_close,
                    &message_received,
-                   &echoed_message](auto err_code,auto received)
+                   &response](auto err_code,auto received)
   {
     message_received=!err_code;
     response=std::move(received);

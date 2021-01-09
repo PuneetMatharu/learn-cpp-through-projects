@@ -20,6 +20,9 @@ namespace NetworkMonitor
 {
   // Static functions
 
+  //===========================================================================
+  // General logging function
+  //===========================================================================
   static void log(const std::string& where,
                   const boost::system::error_code& ec)
   {
