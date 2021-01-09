@@ -40,15 +40,17 @@ namespace NetworkMonitor
       \param port The port on the server.
       \param ioc  The io_context object. The user takes care of calling
                   ioc.run().
+      \param ctx  The TLS context to setup a TLS socket stream.
   */
   //=========================================================================
   WebSocketClient::WebSocketClient(const std::string& url,
                                    const std::string& port,
-                                   boost::asio::io_context& ioc) :
+                                   boost::asio::io_context& ioc,
+                                   boost::asio::ssl::context& ctx) :
     Url(url),
     Port(port),
     Resolver(boost::asio::make_strand(ioc)),
-    Web_socket(boost::asio::make_strand(ioc))
+    Web_socket(boost::asio::make_strand(ioc),ctx)
   {} // End of WebSocketClient
 
   //=========================================================================
@@ -151,15 +153,16 @@ namespace NetworkMonitor
       return;
     } // if (err_code)
 
-    // The following timeout only matters for the purpose of connecting to the
-    // TCP socket. We will reset the timeout to a sensible default after we are
-    // connected.
-    Web_socket.next_layer().expires_after(std::chrono::seconds(5));
+    // This timeout only matters for connecting to the TCP socket. We'll reset
+    // the timeout to a sensible default after we're connected.
+    // Note: The TCP layer is the lowest layer (WebSocket -> TLS -> TCP).
+    boost::beast::get_lowest_layer(Web_socket
+      ).expires_after(std::chrono::seconds(5));
 
     // Connect to the TCP socket.
     // Instead of constructing the socket and the ws objects separately, the
     // socket is now embedded in ws_, and we access it through next_layer().
-    Web_socket.next_layer().async_connect(
+    boost::beast::get_lowest_layer(Web_socket).async_connect(
       *endpoint,
       [this](auto err_code)
     {
@@ -185,11 +188,27 @@ namespace NetworkMonitor
 
     // Now that the TCP socket is connected, we can reset the timeout to
     // whatever Boost.Beast recommends.
-    Web_socket.next_layer().expires_never();
+    boost::beast::get_lowest_layer(Web_socket).expires_never();
     Web_socket.set_option(
       boost::beast::websocket::stream_base::timeout::suggested(
         boost::beast::role_type::client));
 
+    // Attempt a WebSocket handshake.
+    Web_socket.next_layer().async_handshake(
+      boost::asio::ssl::stream_base::client,
+      [this](auto err_code)
+    {
+      on_tls_handshake(err_code);
+    });
+  } // End of on_connect
+
+
+  //=========================================================================
+  //
+  //=========================================================================
+  void WebSocketClient::on_tls_handshake(
+    const boost::system::error_code& err_code)
+  {
     // Attempt a WebSocket handshake.
     Web_socket.async_handshake(
       Url,"/",
@@ -197,7 +216,7 @@ namespace NetworkMonitor
     {
       on_handshake(err_code);
     });
-  } // End of on_connect
+  } // End of on_handshake
 
 
   //=========================================================================

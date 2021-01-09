@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/beast/ssl.hpp>
 
 // Regular libraries
 #include <functional>
@@ -13,7 +14,7 @@
 namespace NetworkMonitor
 {
   //===========================================================================
-  /*! \brief Client to connect to a WebSocket server over plain TCP
+  /*! \brief Client to connect to a WebSocket server over TLS
   */
   //===========================================================================
   class WebSocketClient
@@ -28,11 +29,13 @@ namespace NetworkMonitor
         \param port The port on the server.
         \param ioc  The io_context object. The user takes care of calling
                     ioc.run().
+        \param ctx  The TLS context to setup a TLS socket stream.
     */
     //=========================================================================
     WebSocketClient(const std::string& url,
                     const std::string& port,
-                    boost::asio::io_context& ioc);
+                    boost::asio::io_context& ioc,
+                    boost::asio::ssl::context& ctx);
 
     //=========================================================================
     /*! \brief Destructor
@@ -85,7 +88,9 @@ namespace NetworkMonitor
 
     // Leave uninitialized because they do not support a default constructor.
     boost::asio::ip::tcp::resolver Resolver;
-    boost::beast::websocket::stream<boost::beast::tcp_stream> Web_socket;
+    boost::beast::websocket::stream<
+    boost::beast::ssl_stream<boost::beast::tcp_stream>
+    > Web_socket;
     boost::beast::flat_buffer Read_buffer;
 
     // Functions
@@ -98,6 +103,7 @@ namespace NetworkMonitor
     void on_resolve(const boost::system::error_code& ec,
                     boost::asio::ip::tcp::resolver::iterator endpoint);
     void on_connect(const boost::system::error_code& ec);
+    void on_tls_handshake(const boost::system::error_code& err_code);
     void on_handshake(const boost::system::error_code& ec);
     void listen_to_incoming_message(const boost::system::error_code& ec);
     void on_read(const boost::system::error_code& ec, size_t nBytes);

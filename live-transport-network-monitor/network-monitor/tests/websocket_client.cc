@@ -22,14 +22,20 @@ BOOST_AUTO_TEST_CASE(class_WebSocketClient)
 {
   // Connection targets
   const std::string url {"echo.websocket.org"};
-  const std::string port{"80"};
+  const std::string port{"443"};
   const std::string message{"Hello WebSocket"};
 
   // Always start with an I/O context object.
   boost::asio::io_context ioc{};
 
+  // TLS context for a secure WebSocket connection
+  boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12_client};
+
+  // Load the Certificate Authority (CA) entities
+  ctx.load_verify_file(TESTS_CACERT_PEM);
+
   // The class under test
-  NetworkMonitor::WebSocketClient client{url,port,ioc};
+  NetworkMonitor::WebSocketClient client{url,port,ioc,ctx};
 
   // We use these flags to check that the connection, send, receive functions
   // work as expected.

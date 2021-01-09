@@ -60,7 +60,7 @@ target_compile_definitions(
 # The libraries the executable needs to link with; this does not include the
 # dependencies added transitively through the network-monitor library
 target_link_libraries(
-  network-monitor-tests PRIVATE network-monitor Boost::Boost
+  network-monitor-tests PRIVATE network-monitor Boost::Boost OpenSSL::OpenSSL
 )
 
 # The name of the test this will be built into
