@@ -14,8 +14,11 @@ Learn to write asynchronous code in C++ that can handle tens of thousands of eve
 #### Tools used
 
 **Build system:** Ninja
+
 **Build generator:** CMake
+
 **Dependency manager:** Conan (requires Python 3)
+
 **Version control:** Git
 
 #### Third-party libraries used
