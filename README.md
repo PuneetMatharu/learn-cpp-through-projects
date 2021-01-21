@@ -1,11 +1,8 @@
-# Learn C++ Through Projects
-Personal repository for working on the projects available at https://www.learncppthroughprojects.com.
+# Live transport network monitor project
 
-Currently working on the live transport network monitor project.
+Personal repository for working through the live transport network monitor project available at https://www.learncppthroughprojects.com.
 
-### Live transport network monitor project description
-
----
+### Project description
 
 The city transport company wants to distribute the number of passengers across their lines to balance the network load. They want to create a program that receives live information about passengers' trips and produces travel suggestions that will help keep the network balanced.
 
@@ -13,13 +10,13 @@ Learn to write asynchronous code in C++ that can handle tens of thousands of eve
 
 #### Tools used
 
-**Build system:** Ninja
+* **Build system:** Ninja
 
-**Build generator:** CMake
+* **Build generator:** CMake
 
-**Dependency manager:** Conan (requires Python 3)
+* **Dependency manager:** Conan (requires Python 3)
 
-**Version control:** Git
+* **Version control:** Git
 
 #### Third-party libraries used
 
