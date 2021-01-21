@@ -28,7 +28,7 @@ namespace NetworkMonitor
                      const std::filesystem::path& destination,
                      const std::filesystem::path& ca_cert_file)
   {
-    CURL *curl_pt{curl_easy_init()};
+    CURL *curl_pt{curl_eeeasy_init()};
     if (curl_pt==nullptr)
     {
       std::cout << "Unable to construct a CURL pointer." << std::endl;
@@ -74,6 +74,7 @@ namespace NetworkMonitor
   //===========================================================================
   nlohmann::json parse_json_file(const std::filesystem::path& source)
   {
+    // Create an empty JSON object to store the contents of the input file
     nlohmann::json json_obj{};
 
     // Is there a file to load in?

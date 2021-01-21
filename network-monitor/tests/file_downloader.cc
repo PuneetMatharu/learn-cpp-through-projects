@@ -15,7 +15,7 @@
 
 BOOST_AUTO_TEST_SUITE(network_monitor);
 
-//-------------------------------------------------------------------------
+//=========================================================================
 
 // Our implementation and tests have some limitations:
 //  * Missing test #1: Failed download.
@@ -63,9 +63,14 @@ BOOST_AUTO_TEST_CASE(file_downloader)
   std::filesystem::remove(destination);
 } // BOOST_AUTO_TEST_CASE(file_downloader)
 
-//-------------------------------------------------------------------------
+//=========================================================================
 
-BOOST_AUTO_TEST_CASE(network_layout_json)
+// Our implementation and tests have some limitations:
+//  * Missing test #1: File not found.       [DONE]
+//  * Missing test #2: Empty file.           [DONE]
+//  * Missing test #3: Invalid JSON format.  [DONE]
+
+BOOST_AUTO_TEST_CASE(check_json_file_exists)
 {
   // Make sure we were able to find the network layout .json file
   BOOST_CHECK(std::filesystem::exists(TESTS_NETWORK_LAYOUT_JSON));
@@ -73,12 +78,29 @@ BOOST_AUTO_TEST_CASE(network_layout_json)
 
 //-------------------------------------------------------------------------
 
-// Our implementation and tests have some limitations:
-//  * Missing test #1: File not found.
-//  * Missing test #2: Invalid JSON format.
-//  * Missing test #3: Empty file.
+BOOST_AUTO_TEST_CASE(test_empty_json_file)
+{
+  // Is there anything in the file?
+  BOOST_CHECK(!std::filesystem::is_empty(TESTS_NETWORK_LAYOUT_JSON));
+} // BOOST_AUTO_TEST_CASE(network_layout_json)
 
-BOOST_AUTO_TEST_CASE(json_parser)
+//-------------------------------------------------------------------------
+
+BOOST_AUTO_TEST_CASE(test_invalid_json_file)
+{
+  // Create a JSON object to store the contents of the .json file
+  nlohmann::json json_obj
+  {
+    NetworkMonitor::parse_json_file(TESTS_NETWORK_LAYOUT_JSON)
+  };
+
+  // If the JSON object is empty, there was parse error
+  BOOST_CHECK(json_obj.size()>0);
+} // BOOST_AUTO_TEST_CASE(network_layout_json)
+
+//-------------------------------------------------------------------------
+
+BOOST_AUTO_TEST_CASE(parse_json_file)
 {
   // Create a JSON object to store the contents of the .json file
   nlohmann::json json_obj
@@ -95,10 +117,9 @@ BOOST_AUTO_TEST_CASE(json_parser)
   BOOST_CHECK(json_obj["travel_times"].size()>0);
 } // BOOST_AUTO_TEST_CASE(json_parser)
 
-//-------------------------------------------------------------------------
+//=========================================================================
 
 BOOST_AUTO_TEST_SUITE_END();
-
 
 
 
